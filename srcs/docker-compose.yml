@@ -1,10 +1,13 @@
 services:
   nginx:
-    image: nginx:stable-alpine
+    build:
+      context: .
+      dockerfile: requirements/nginx/Dockerfile
     volumes:
-      - ./public:/var/www/public
-      - ./nginx/conf.d:/etc/nginx/conf.d/
-    restart: unless-stopped
+      - ./requirements/nginx/public:/var/www
+      - ./requirements/nginx/conf:/etc/nginx/http.d/
+      - ./requirements/tools:/etc/nginx/ssl/
+    restart: always
     ports:
-      - "80:80"
-    container_name: simple_nginx_html
+      - "443:443"
+    container_name: nginx
