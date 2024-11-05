@@ -5,6 +5,8 @@ services:
       context: ./requirements/nginx
       dockerfile: Dockerfile
     restart: on-failure
+    volumes:
+      - wordpress_db:/var/www/html/wordpress
     ports:
       - "443:443"
     networks:
@@ -12,16 +14,16 @@ services:
     container_name: nginx
   mariadb:
     build:
-      context: ./requirements/mariadb
+      context: ./requirements/MariaDB
       dockerfile: Dockerfile
     restart: on-failure
-    # env_file: .env
+    env_file: ./.env
     networks:
        - inception
     volumes:
       - mariadb_db:/var/lib/mysql
     expose:
-      - "3306"
+      - "3306:3306"
     container_name: mariadb
     secrets:
       - root_passwords
@@ -31,15 +33,15 @@ services:
       context: ./requirements/WordPress
       dockerfile: Dockerfile
     restart: on-failure
-    #env_file: .env
+    env_file: ./.env
     networks:
       - inception
     volumes:
-      - wordpress_db:/var/www/wordpress
+      - wordpress_db:/var/www/html/wordpress
     depends_on:    # WordPress démarrera uniquement après MariaDB (sinon il ne pourra pas configurer la base de données...)
       - mariadb
     expose:
-      - "9000"
+      - "9000:9000"
     container_name: wordpress
     secrets:
       - wp_passwords
@@ -48,14 +50,14 @@ services:
 
 volumes:
     wordpress_db:
-      name: mariadb
+      name: wordpress_db
       driver: local # ici nous stockons le volume en local
       driver_opts:
         type: 'none'     # aucun type spécifique
         o: 'bind'
         device: '/home/${USER}/data/wordpress' #Ou stocker le dossier sur votre ordinateur en local
     mariadb_db:
-      name: mariadb
+      name: mariadb_db
       driver: local
       driver_opts:
         type: 'none' 

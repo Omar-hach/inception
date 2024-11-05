@@ -1,18 +1,16 @@
 NAME = simple_nginx_html
 
-CC= c++
-
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98
-
-$(DIR):
-	mkdir -p ~/data/mariadb
-	mkdir -p ~/data/wordpress
+DIR = ~/data
 
 all: $(DIR)
 	docker-compose -f ./srcs/docker-compose.yml up
 
 build: $(DIR)
 	docker-compose -f ./srcs/docker-compose.yml up -d --build
+
+$(DIR):
+	mkdir -p ~/data/mariadb/
+	mkdir -p ~/data/wordpress/
 
 down:
 	docker-compose -f ./srcs/docker-compose.yml down
@@ -27,9 +25,9 @@ fclean: clean
 	docker system prune --all --force --volumes
 	docker network prune --force
 	docker volume prune --force
-	sudo rm -rf ~/data/mariadb
-	sudo rm -rf ~/data/wordpress
+	sudo rm -rf ~/data/mariadb/*
+	sudo rm -rf ~/data/wordpress/*
 
-re: fclean build
+re: fclean all
 
 .PHONY: clean fclean re all build down
