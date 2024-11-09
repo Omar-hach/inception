@@ -1,4 +1,3 @@
-
 services:
   nginx:
     build:
@@ -7,6 +6,8 @@ services:
     restart: on-failure
     volumes:
       - wordpress_db:/var/www/html/wordpress
+    depends_on:    
+      - wordpress
     ports:
       - "443:443"
     networks:
@@ -14,63 +15,45 @@ services:
     container_name: nginx
   mariadb:
     build:
-      context: ./requirements/MariaDB
+      context: ./requirements/mariadb
       dockerfile: Dockerfile
     restart: on-failure
-    env_file: ./.env
+    env_file: .env
     networks:
        - inception
     volumes:
       - mariadb_db:/var/lib/mysql
-    expose:
-      - "3306:3306"
     container_name: mariadb
-    secrets:
-      - root_passwords
-      - database_passwords
   wordpress:
     build:
-      context: ./requirements/WordPress
+      context: ./requirements/wordpress
       dockerfile: Dockerfile
     restart: on-failure
-    env_file: ./.env
+    env_file: .env
     networks:
       - inception
     volumes:
       - wordpress_db:/var/www/html/wordpress
-    depends_on:    # WordPress démarrera uniquement après MariaDB (sinon il ne pourra pas configurer la base de données...)
+    depends_on:
       - mariadb
-    expose:
-      - "9000:9000"
     container_name: wordpress
-    secrets:
-      - wp_passwords
-      - database_passwords
-      - root_passwords
 
 volumes:
     wordpress_db:
       name: wordpress_db
-      driver: local # ici nous stockons le volume en local
+      driver: local 
       driver_opts:
-        type: 'none'     # aucun type spécifique
+        type: 'none'
         o: 'bind'
-        device: '/home/${USER}/data/wordpress' #Ou stocker le dossier sur votre ordinateur en local
+        device: '/home/${USER}/data/wordpress'
     mariadb_db:
       name: mariadb_db
       driver: local
       driver_opts:
-        type: 'none' 
-        o: 'bind'    
+        type: 'none'
+        o: 'bind'
         device: '/home/${USER}/data/mariadb'
+
 networks:
    inception:
      driver: bridge
-
-secrets:
-     database_passwords:
-      file: ../secrets/db_password.txt
-     root_passwords:
-      file: ../secrets/db_root_password.txt
-     wp_passwords:
-      file: ../secrets/credentials.txt

@@ -1,10 +1,6 @@
-# Description: Nginx Dockerfile
-
-# pull the base image
 FROM debian:bookworm
 
-# update and upgrade the system
-RUN apt-get update -y && apt-get upgrade -y && apt-get install -y nginx openssl vim
+RUN apt-get update -y && apt-get upgrade -y && apt-get install -y nginx openssl
 
 RUN mkdir -p /etc/nginx/ssl
 
@@ -18,14 +14,10 @@ RUN mkdir -p /var/run/nginx
 
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 
-# COPY index.html /var/www/html
-
-# # open the port on which the container will exchange traffic
 EXPOSE 443
 
-RUN chmod 755 /var/www/html
+RUN  mkdir -p /var/www/html/wordpress && chmod 755 /var/www/html/wordpress
 
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R root:root /var/www/html/wordpress
 
-# define the command to run when the container starts
 CMD ["nginx", "-g", "daemon off;"]
